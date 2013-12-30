@@ -10,7 +10,8 @@ class MandrillPayloadDecoder implements PayloadDecoderInterface
     {
         // Parse request raw body
         $vars = array();
-        parse_str(urldecode($payload), $vars);
+        $payload = html_entity_decode(urldecode($payload), ENT_QUOTES);
+        parse_str($payload, $vars);
         if (!isset($vars['mandrill_events'])) {
             throw new InvalidPayloadException(
                 sprintf(
@@ -41,7 +42,9 @@ class MandrillPayloadDecoder implements PayloadDecoderInterface
         $message->from[0] = $messageMandrill[0]->msg->from_email;
         $message->from[1] = $messageMandrill[0]->msg->from_name;
         $message->to = $messageMandrill[0]->msg->to;
-        $message->cc = $messageMandrill[0]->msg->cc;
+        if (isset($messageMandrill[0]->msg->cc)) {
+            $message->cc = $messageMandrill[0]->msg->cc;
+        }
         $message->source = $messageMandrill;
 
         // All headers must be case sensitive
