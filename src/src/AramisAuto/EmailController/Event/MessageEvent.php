@@ -1,8 +1,8 @@
 <?php
 namespace AramisAuto\EmailController\Event;
 
-use Symfony\Component\EventDispatcher\Event;
 use AramisAuto\EmailController\Message;
+use Symfony\Component\EventDispatcher\Event;
 
 class MessageEvent extends Event
 {
