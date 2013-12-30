@@ -1,8 +1,16 @@
 {
-    "repositories": [
+    "name": "ARAMISAUTO/email-controller",
+    "type": "library",
+    "description": "A modern and powerful inbound email processor",
+    "keywords": ["email", "events", "async", "inbound", "mandrill"],
+    "homepage": "https://github.com/ARAMISAUTO/email-controller",
+    "license": "GPL-3.0+",
+    "authors": [
         {
-            "type": "composer",
-            "url": "http://constructions-incongrues.github.com/packages"
+            "name": "Tristan Rivoallan",
+            "email": "tristan.rivoallan@aramisauto.com",
+            "homepage": "http://github.com/trivoallan",
+            "role": "Developer"
         }
     ],
     "require": {
