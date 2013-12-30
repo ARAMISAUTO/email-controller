@@ -1,5 +1,5 @@
 {
-    "name": "ARAMISAUTO/email-controller",
+    "name": "aramisauto/email-controller",
     "type": "library",
     "description": "A modern and powerful inbound email processor",
     "keywords": ["email", "events", "async", "inbound", "mandrill"],
