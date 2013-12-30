@@ -1,8 +1,8 @@
 <?php
-namespace ConstructionsIncongrues\EmailController\Event;
+namespace AramisAuto\EmailController\Event;
 
 use Symfony\Component\EventDispatcher\Event;
-use ConstructionsIncongrues\EmailController\Message;
+use AramisAuto\EmailController\Message;
 
 class MessageEvent extends Event
 {

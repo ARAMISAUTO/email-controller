@@ -1,8 +1,8 @@
 <?php
-namespace ConstructionsIncongrues\EmailController\PayloadDecoder;
+namespace AramisAuto\EmailController\PayloadDecoder;
 
-use ConstructionsIncongrues\EmailController\Message;
-use ConstructionsIncongrues\EmailController\Exception\InvalidPayloadException;
+use AramisAuto\EmailController\Message;
+use AramisAuto\EmailController\Exception\InvalidPayloadException;
 
 class MandrillPayloadDecoder implements PayloadDecoderInterface
 {

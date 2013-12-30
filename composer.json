@@ -15,11 +15,13 @@
     ],
     "require": {
       "symfony/event-dispatcher": "2.4",
-      "symfony/expression-language": "2.4"
+      "symfony/expression-language": "2.4",
+
+      "fabpot/goutte": "1.0.*@dev"
     },
     "autoload": {
         "psr-0": {
-            "ConstructionsIncongrues": "src/src"
+            "AramisAuto": "src/src"
         }
     }
 }

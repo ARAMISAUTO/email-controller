@@ -1,5 +1,5 @@
 <?php
-namespace ConstructionsIncongrues\EmailController;
+namespace AramisAuto\EmailController;
 
 class Message
 {

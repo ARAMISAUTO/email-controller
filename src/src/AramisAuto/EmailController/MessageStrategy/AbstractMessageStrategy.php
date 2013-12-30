@@ -1,7 +1,7 @@
 <?php
-namespace ConstructionsIncongrues\EmailController\MessageStrategy;
+namespace AramisAuto\EmailController\MessageStrategy;
 
-use ConstructionsIncongrues\EmailController\Message;
+use AramisAuto\EmailController\Message;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 abstract class AbstractMessageStrategy

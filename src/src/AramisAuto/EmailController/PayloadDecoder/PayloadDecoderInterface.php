@@ -1,5 +1,5 @@
 <?php
-namespace ConstructionsIncongrues\EmailController\PayloadDecoder;
+namespace AramisAuto\EmailController\PayloadDecoder;
 
 interface PayloadDecoderInterface
 {

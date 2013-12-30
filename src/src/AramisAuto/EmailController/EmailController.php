@@ -1,7 +1,7 @@
 <?php
-namespace ConstructionsIncongrues\EmailController;
+namespace AramisAuto\EmailController;
 
-use ConstructionsIncongrues\EmailController\Exception\NoMessageStrategyException;
+use AramisAuto\EmailController\Exception\NoMessageStrategyException;
 use PayloadDecoder\PayloadDecoderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;

@@ -1,4 +1,4 @@
 <?php
-namespace ConstructionsIncongrues\EmailController\Exception;
+namespace AramisAuto\EmailController\Exception;
 
 class NoMessageStrategyException extends \Exception {}

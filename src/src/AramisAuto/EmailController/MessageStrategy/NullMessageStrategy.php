@@ -1,6 +1,6 @@
 <?php
-namespace ConstructionsIncongrues\EmailController\MessageStrategy;
-use ConstructionsIncongrues\EmailController\Event\MessageEvent;
+namespace AramisAuto\EmailController\MessageStrategy;
+use AramisAuto\EmailController\Event\MessageEvent;
 
 class NullMessageStrategy extends AbstractMessageStrategy
 {
