@@ -8,26 +8,48 @@ abstract class AbstractMessageStrategy
 {
     private $eventDispatcher;
     private $message;
+    private $eventSuccess;
+    private $eventError;
 
-    const EVENT_SUCCESS = 'emailcontroller.messagestrategy.success';
-    const EVENT_ERROR   = 'emailcontroller.messagestrategy.error';
-    const EVENT_START   = 'emailcontroller.messagestrategy.start';
-    const EVENT_FINISH  = 'emailcontroller.messagestrategy.finish';
-
-    public function __construct(EventDispatcher $eventDispatcher, Message $message)
+    public function __construct()
     {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->message = $message;
+        $this->eventSuccess = sprintf('emailcontroller.%s.success', uniqid());
+        $this->eventError = sprintf('emailcontroller.%s.error', uniqid());
     }
 
-    protected function getEventDispatcher()
+    public function success()
+    {
+        return $this->eventSuccess;
+    }
+
+    public function error()
+    {
+        return $this->eventError;
+    }
+
+    public function getEventDispatcher()
     {
         return $this->eventDispatcher;
+    }
+
+    public function setEventDispatcher(EventDispatcher $eventDispatcher)
+    {
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     protected function getMessage()
     {
         return $this->message;
+    }
+
+    public function setMessage(Message $message)
+    {
+        $this->message = $message;
+    }
+
+    public function on($eventName, $callback)
+    {
+        $this->getEventDispatcher()->addListener($eventName, $callback);
     }
 
     abstract public function execute();

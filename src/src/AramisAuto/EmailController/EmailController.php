@@ -5,6 +5,7 @@ use AramisAuto\EmailController\Exception\NoMessageStrategyException;
 use PayloadDecoder\PayloadDecoderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
+use AramisAuto\EmailController\MessageStrategy\AbstractMessageStrategy;
 
 class EmailController
 {
@@ -16,11 +17,6 @@ class EmailController
     {
         $this->eventDispatcher = new EventDispatcher();
         $this->payloadDecoder = $payloadDecoder;
-    }
-
-    public function on($eventName, $callback)
-    {
-        $this->eventDispatcher->addListener($eventName, $callback);
     }
 
     public function run($payload)
@@ -38,7 +34,8 @@ class EmailController
                 $matched = true;
 
                 // Instanciate strategy
-                $strategy = new $spec[0]($this->eventDispatcher, $message);
+                $strategy = $spec[0];
+                $strategy->setMessage($message);
 
                 // Execute strategy
                 $strategy->execute();
@@ -62,8 +59,9 @@ class EmailController
         }
     }
 
-    public function addMessageStrategy($expression, $strategyClass, $continue = false)
+    public function addMessageStrategy($expression, AbstractMessageStrategy $strategy, $continue = false)
     {
-        $this->messageStrategies[$expression] = array($strategyClass, $continue);
+        $strategy->setEventDispatcher($this->eventDispatcher);
+        $this->messageStrategies[$expression] = array($strategy, $continue);
     }
 }
