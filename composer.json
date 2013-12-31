@@ -18,6 +18,9 @@
         "symfony/event-dispatcher": "2.4",
         "symfony/expression-language": "2.4"
     },
+    "suggest": {
+        "constructions-incongrues/email-controller-addons": "Additional email strategies"
+    },
     "autoload": {
         "psr-0": {
             "AramisAuto": "src/src"
