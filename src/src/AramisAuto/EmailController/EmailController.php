@@ -41,12 +41,12 @@ class EmailController
                 $strategy->setMessage($message);
 
                 // Global success event
-                $strategy->on($strategy->success(), function(MessageEvent $event) {
+                $strategy->on($strategy->success(), function (MessageEvent $event) {
                     $this->getEventDispatcher()->dispatch($this->success(), $event);
                 });
 
                 // Global error event
-                $strategy->on($strategy->error(), function(ErrorEvent $event) {
+                $strategy->on($strategy->error(), function (ErrorEvent $event) {
                     $this->getEventDispatcher()->dispatch($this->error(), $event);
                 });
 

@@ -1,5 +1,6 @@
 <?php
 namespace AramisAuto\EmailController\MessageStrategy;
+
 use AramisAuto\EmailController\Event\MessageEvent;
 
 class NullMessageStrategy extends AbstractMessageStrategy

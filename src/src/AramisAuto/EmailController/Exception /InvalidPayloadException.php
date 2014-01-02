@@ -1,4 +1,7 @@
 <?php
 namespace AramisAuto\EmailController\Exception;
 
-class InvalidPayloadException extends \Exception {}
+class InvalidPayloadException extends \Exception
+{
+
+}

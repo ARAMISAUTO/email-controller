@@ -1,4 +1,7 @@
 <?php
 namespace AramisAuto\EmailController\Exception;
 
-class NoMessageStrategyException extends \Exception {}
+class NoMessageStrategyException extends \Exception
+{
+
+}
