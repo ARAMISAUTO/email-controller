@@ -9,9 +9,13 @@ use PayloadDecoder\PayloadDecoderInterface;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LoggerAwareTrait;
 
-class EmailController
+class EmailController implements LoggerInterface
 {
+    use Psr\Log\LoggerAwareTrait;
+
     private $eventDispatcher;
     private $payloadDecoder;
     private $messageStrategies = array();

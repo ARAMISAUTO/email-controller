@@ -15,8 +15,9 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "symfony/event-dispatcher": "2.4",
-        "symfony/expression-language": "2.4"
+        "symfony/event-dispatcher": "2.4.*",
+        "symfony/expression-language": "2.4.*",
+        "psr/log": "1.0.*"
     },
     "suggest": {
         "constructions-incongrues/email-controller-addons": "Additional email strategies"
