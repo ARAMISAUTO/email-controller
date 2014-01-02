@@ -30,10 +30,8 @@ class EmailController
         // Execute applicable message strategies
         $matched = false;
         $language = new ExpressionLanguage();
-        foreach ($this->messageStrategies as $expression => $spec)
-        {
-            if ($language->evaluate($expression, array('message' => $message)))
-            {
+        foreach ($this->messageStrategies as $expression => $spec) {
+            if ($language->evaluate($expression, array('message' => $message))) {
                 $matched = true;
 
                 // Instanciate strategy
@@ -54,8 +52,7 @@ class EmailController
                 $strategy->execute();
 
                 // Continue to search for strategies applicable to message ?
-                if ($spec[1] !== true)
-                {
+                if ($spec[1] !== true) {
                     break;
                 }
             }
