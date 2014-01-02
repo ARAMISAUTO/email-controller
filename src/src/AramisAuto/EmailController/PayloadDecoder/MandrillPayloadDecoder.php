@@ -22,7 +22,7 @@ class MandrillPayloadDecoder implements PayloadDecoderInterface
         }
 
         // Decode JSON
-        $messageMandrill = json_decode($vars['mandrill_events']);
+        $messageMandrill = json_decode($vars['mandrill_events'], true);
         if (!$messageMandrill) {
             throw new InvalidPayloadException(
                 sprintf(
@@ -34,26 +34,20 @@ class MandrillPayloadDecoder implements PayloadDecoderInterface
 
         // Create EmailController message
         $message = new Message();
-        $message->raw = $messageMandrill[0]->msg->raw_msg;
-        $message->headers = $messageMandrill[0]->msg->headers;
-        $message->text = $messageMandrill[0]->msg->text;
-        $message->html = $messageMandrill[0]->msg->html;
-        $message->subject = $messageMandrill[0]->msg->subject;
-        $message->from[0] = $messageMandrill[0]->msg->from_email;
-        $message->from[1] = $messageMandrill[0]->msg->from_name;
-        $message->to = $messageMandrill[0]->msg->to;
-        if (isset($messageMandrill[0]->msg->cc)) {
-            $message->cc = $messageMandrill[0]->msg->cc;
+        $message->setRaw($messageMandrill[0]['msg']['raw_msg']);
+        $message->setHeaders($messageMandrill[0]['msg']['headers']);
+        $message->setText($messageMandrill[0]['msg']['text']);
+        $message->setHtml($messageMandrill[0]['msg']['html']);
+        $message->setSubject($messageMandrill[0]['msg']['subject']);
+        $message->setFrom(
+            $messageMandrill[0]['msg']['from_email'],
+            $messageMandrill[0]['msg']['from_name']
+        );
+        $message->setTo($messageMandrill[0]['msg']['to']);
+        if (isset($messageMandrill[0]['msg']['cc'])) {
+            $message->setCc($messageMandrill[0]['msg']['cc']);
         }
-        $message->source = $messageMandrill;
-
-        // All headers must be case sensitive
-        $headersLower = new \stdClass();
-        foreach ($message->headers as $name => $value) {
-            $nameLower = strtolower($name);
-            $headersLower->$nameLower = $value;
-        }
-        $message->headers = $headersLower;
+        $message->source = json_decode($vars['mandrill_events'])[0];
 
         return $message;
     }
