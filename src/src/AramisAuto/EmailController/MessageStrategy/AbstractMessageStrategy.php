@@ -2,19 +2,23 @@
 namespace AramisAuto\EmailController\MessageStrategy;
 
 use AramisAuto\EmailController\Message;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-abstract class AbstractMessageStrategy
+abstract class AbstractMessageStrategy implements LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     private $eventDispatcher;
-    private $message;
-    private $eventSuccess;
     private $eventError;
+    private $eventSuccess;
+    private $message;
 
     public function __construct()
     {
-        $this->eventSuccess = sprintf('emailcontroller.%s.success', uniqid());
         $this->eventError = sprintf('emailcontroller.%s.error', uniqid());
+        $this->eventSuccess = sprintf('emailcontroller.%s.success', uniqid());
     }
 
     public function success()
@@ -37,7 +41,7 @@ abstract class AbstractMessageStrategy
         $this->eventDispatcher = $eventDispatcher;
     }
 
-    protected function getMessage()
+    public function getMessage()
     {
         return $this->message;
     }

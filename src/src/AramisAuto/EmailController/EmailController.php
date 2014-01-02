@@ -6,35 +6,62 @@ use AramisAuto\EmailController\Event\MessageEvent;
 use AramisAuto\EmailController\Exception\NoMessageStrategyException;
 use AramisAuto\EmailController\MessageStrategy\AbstractMessageStrategy;
 use PayloadDecoder\PayloadDecoderInterface;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
-use Psr\Log\LoggerInterface;
-use Psr\Log\LoggerAwareTrait;
 
-class EmailController implements LoggerInterface
+class EmailController implements LoggerAwareInterface
 {
-    use Psr\Log\LoggerAwareTrait;
+    use LoggerAwareTrait;
 
     private $eventDispatcher;
     private $payloadDecoder;
     private $messageStrategies = array();
 
-    public function __construct(PayloadDecoder\PayloadDecoderInterface $payloadDecoder)
+    public function __construct(PayloadDecoder\PayloadDecoderInterface $payloadDecoder, LoggerInterface $logger = null)
     {
         $this->eventDispatcher = new EventDispatcher();
         $this->payloadDecoder = $payloadDecoder;
+        if (is_null($logger)) {
+            $logger = new NullLogger();
+        }
+        $this->setLogger($logger);
     }
 
     public function run($payload)
     {
         // Decode payload
+        $this->logger->info(
+            'Using payload decoder',
+            array('payloadDecoder' => get_class($this->payloadDecoder))
+        );
         $message = $this->payloadDecoder->decode($payload);
 
         // Execute applicable message strategies
         $matched = false;
         $language = new ExpressionLanguage();
         foreach ($this->messageStrategies as $expression => $spec) {
+            // Log
+            $this->logger->info(
+                'Evaluating expression against message',
+                array(
+                    'expression' => $expression,
+                    'messageId'  => $message->headers->{"message-id"}
+                )
+            );
+            $this->logger->debug(
+                'Evaluating expression against message',
+                array(
+                    'expression' => $expression,
+                    'message'    => $message,
+                    'messageId'  => $message->headers->{"message-id"}
+                )
+            );
+
+            // Evaluate expression against message
             if ($language->evaluate($expression, array('message' => $message))) {
                 $matched = true;
 
@@ -42,13 +69,38 @@ class EmailController implements LoggerInterface
                 $strategy = $spec[0];
                 $strategy->setMessage($message);
 
+                // Log
+                $this->logger->info(
+                    'Expression matched, executing related strategy',
+                    array(
+                        'expression' => $expression,
+                        'strategy' => get_class($strategy),
+                        'messageId'  => $message->headers->{"message-id"}
+                    )
+                );
+
                 // Global success event
-                $strategy->on($strategy->success(), function (MessageEvent $event) {
+                $strategy->on($strategy->success(), function (MessageEvent $event) use ($strategy) {
+                    $this->logger->info(
+                        'Strategy execution succeeded',
+                        array(
+                            'strategy'  => get_class($strategy),
+                            'messageId' => $strategy->getMessage()->headers->{"message-id"}
+                        )
+                    );
                     $this->getEventDispatcher()->dispatch($this->success(), $event);
                 });
 
                 // Global error event
-                $strategy->on($strategy->error(), function (ErrorEvent $event) {
+                $strategy->on($strategy->error(), function (ErrorEvent $event) use ($strategy) {
+                    $this->logger->info(
+                        'Strategy execution failed',
+                        array(
+                            'strategy'  => get_class($strategy),
+                            'messageId' => $strategy->getMessage()->headers->{"message-id"},
+                            'error'     => $event->getError()
+                        )
+                    );
                     $this->getEventDispatcher()->dispatch($this->error(), $event);
                 });
 
@@ -75,8 +127,18 @@ class EmailController implements LoggerInterface
 
     public function addMessageStrategy($expression, AbstractMessageStrategy $strategy, $continue = false)
     {
+        // Configure strategy
         $strategy->setEventDispatcher($this->getEventDispatcher());
+        $strategy->setLogger($this->logger);
+
+        // Store strategy
         $this->messageStrategies[$expression] = array($strategy, $continue);
+
+        // Log
+        $this->logger->info(
+            'Added message strategy rule',
+            array('expression' => $expression, 'strategy' => get_class($strategy))
+        );
     }
 
     protected function getEventDispatcher()
