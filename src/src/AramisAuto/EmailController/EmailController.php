@@ -1,11 +1,14 @@
 <?php
 namespace AramisAuto\EmailController;
 
+use AramisAuto\EmailController\Event\ErrorEvent;
+use AramisAuto\EmailController\Event\MessageEvent;
 use AramisAuto\EmailController\Exception\NoMessageStrategyException;
+use AramisAuto\EmailController\MessageStrategy\AbstractMessageStrategy;
 use PayloadDecoder\PayloadDecoderInterface;
+use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
-use AramisAuto\EmailController\MessageStrategy\AbstractMessageStrategy;
 
 class EmailController
 {
@@ -37,6 +40,16 @@ class EmailController
                 $strategy = $spec[0];
                 $strategy->setMessage($message);
 
+                // Global success event
+                $strategy->on($strategy->success(), function(MessageEvent $event) {
+                    $this->getEventDispatcher()->dispatch($this->success(), $event);
+                });
+
+                // Global error event
+                $strategy->on($strategy->error(), function(ErrorEvent $event) {
+                    $this->getEventDispatcher()->dispatch($this->error(), $event);
+                });
+
                 // Execute strategy
                 $strategy->execute();
 
@@ -61,7 +74,27 @@ class EmailController
 
     public function addMessageStrategy($expression, AbstractMessageStrategy $strategy, $continue = false)
     {
-        $strategy->setEventDispatcher($this->eventDispatcher);
+        $strategy->setEventDispatcher($this->getEventDispatcher());
         $this->messageStrategies[$expression] = array($strategy, $continue);
+    }
+
+    protected function getEventDispatcher()
+    {
+        return $this->eventDispatcher;
+    }
+
+    public function on($eventName, $callback)
+    {
+        $this->getEventDispatcher()->addListener($eventName, $callback);
+    }
+
+    public function error()
+    {
+        return 'emailcontroller.error';
+    }
+
+    public function success()
+    {
+        return 'emailcontroller.success';
     }
 }
