@@ -9,6 +9,7 @@ use PayloadDecoder\PayloadDecoderInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
@@ -38,90 +39,92 @@ class EmailController implements LoggerAwareInterface
             'Using payload decoder',
             array('payloadDecoder' => get_class($this->payloadDecoder))
         );
-        $message = $this->payloadDecoder->decode($payload);
+        $messages = $this->payloadDecoder->decode($payload);
 
         // Execute applicable message strategies
-        $matched = false;
-        $language = new ExpressionLanguage();
-        foreach ($this->messageStrategies as $expression => $spec) {
-            // Log
-            $this->logger->info(
-                'Evaluating expression against message',
-                array(
-                    'expression' => $expression,
-                    'messageId'  => $message->headers->{"message-id"}
-                )
-            );
-            $this->logger->debug(
-                'Evaluating expression against message',
-                array(
-                    'expression' => $expression,
-                    'message'    => $message,
-                    'messageId'  => $message->headers->{"message-id"}
-                )
-            );
-
-            // Evaluate expression against message
-            if ($language->evaluate($expression, array('message' => $message))) {
-                $matched = true;
-
-                // Instanciate strategy
-                $strategy = $spec[0];
-                $strategy->setMessage($message);
-
+        foreach ($messages as $message) {
+            $matched = false;
+            $language = new ExpressionLanguage();
+            foreach ($this->messageStrategies as $expression => $spec) {
                 // Log
                 $this->logger->info(
-                    'Expression matched, executing related strategy',
+                    'Evaluating expression against message',
                     array(
                         'expression' => $expression,
-                        'strategy' => get_class($strategy),
-                        'messageId'  => $message->headers->{"message-id"}
+                        'messageId'  => $message->id
+                    )
+                );
+                $this->logger->debug(
+                    'Evaluating expression against message',
+                    array(
+                        'expression' => $expression,
+                        'message'    => $message,
+                        'messageId'  => $message->id
                     )
                 );
 
-                // Global success event
-                $strategy->on($strategy->success(), function (MessageEvent $event) use ($strategy) {
+                // Evaluate expression against message
+                if ($language->evaluate($expression, array('message' => $message))) {
+                    $matched = true;
+
+                    // Instanciate strategy
+                    $strategy = $spec[0];
+                    $strategy->setMessage($message);
+
+                    // Log
                     $this->logger->info(
-                        'Strategy execution succeeded',
+                        'Expression matched, executing related strategy',
                         array(
-                            'strategy'  => get_class($strategy),
-                            'messageId' => $strategy->getMessage()->headers->{"message-id"}
+                            'expression' => $expression,
+                            'strategy' => get_class($strategy),
+                            'messageId'  => $message->id
                         )
                     );
-                    $this->getEventDispatcher()->dispatch($this->success(), $event);
-                });
 
-                // Global error event
-                $strategy->on($strategy->error(), function (ErrorEvent $event) use ($strategy) {
-                    $this->logger->info(
-                        'Strategy execution failed',
-                        array(
-                            'strategy'  => get_class($strategy),
-                            'messageId' => $strategy->getMessage()->headers->{"message-id"},
-                            'error'     => $event->getError()
-                        )
-                    );
-                    $this->getEventDispatcher()->dispatch($this->error(), $event);
-                });
+                    // Global success event
+                    $strategy->on($strategy->success(), function (MessageEvent $event) use ($strategy) {
+                        $this->logger->info(
+                            'Strategy execution succeeded',
+                            array(
+                                'strategy'  => get_class($strategy),
+                                'messageId' => $strategy->getMessage()->id
+                            )
+                        );
+                        $this->getEventDispatcher()->dispatch($this->success(), $event);
+                    });
 
-                // Execute strategy
-                $strategy->execute();
+                    // Global error event
+                    $strategy->on($strategy->error(), function (ErrorEvent $event) use ($strategy) {
+                        $this->logger->info(
+                            'Strategy execution failed',
+                            array(
+                                'strategy'  => get_class($strategy),
+                                'messageId' => $strategy->getMessage()->id,
+                                'error'     => $event->getError()
+                            )
+                        );
+                        $this->getEventDispatcher()->dispatch($this->error(), $event);
+                    });
 
-                // Continue to search for strategies applicable to message ?
-                if ($spec[1] !== true) {
-                    break;
+                    // Execute strategy
+                    $strategy->execute();
+
+                    // Continue to search for strategies applicable to message ?
+                    if ($spec[1] !== true) {
+                        break;
+                    }
                 }
             }
-        }
 
-        // Throw an error if no appropriate strategy was found
-        if (!$matched) {
-            throw new NoMessageStrategyException(
-                sprintf(
-                    'No applicable strategy found for message - %s',
-                    json_encode(array('message' => $message))
-                )
-            );
+            // Throw an error if no appropriate strategy was found
+            if (!$matched) {
+                throw new NoMessageStrategyException(
+                    sprintf(
+                        'No applicable strategy found for message - %s',
+                        json_encode(array('message' => $message), JSON_UNESCAPED_SLASHES)
+                    )
+                );
+            }
         }
     }
 

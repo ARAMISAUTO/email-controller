@@ -3,6 +3,7 @@ namespace AramisAuto\EmailController;
 
 class Message
 {
+    public $id;
     public $raw;
     public $headers;
     public $text;
@@ -54,8 +55,8 @@ class Message
 
     public function setTo(array $tos)
     {
+        $objTo = new \StdClass();
         foreach ($tos as $to) {
-            $objTo = new \StdClass();
             $objTo->email = $to[0];
             $objTo->name = $to[1];
         }
@@ -64,8 +65,8 @@ class Message
 
     public function setCc(array $ccs)
     {
+        $objCc = new \StdClass();
         foreach ($ccs as $cc) {
-            $objCc = new \StdClass();
             $objCc->email = $cc[0];
             $objCc->name = $cc[1];
         }
@@ -75,5 +76,10 @@ class Message
     public function setSource($source)
     {
         $this->source = $source;
+    }
+
+    public function setId($id)
+    {
+        $this->id = $id;
     }
 }
