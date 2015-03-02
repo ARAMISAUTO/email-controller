@@ -1,9 +1,9 @@
 <?php
 namespace AramisAuto\EmailController\PayloadDecoder;
 
-use AramisAuto\EmailController\Message;
 use AramisAuto\EmailController\Exception\InvalidPayloadException;
 use AramisAuto\EmailController\Exception\MandrillWebhookTestException;
+use AramisAuto\EmailController\Message;
 
 class MandrillPayloadDecoder implements PayloadDecoderInterface
 {
