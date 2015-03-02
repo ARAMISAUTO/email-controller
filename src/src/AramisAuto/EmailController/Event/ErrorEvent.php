@@ -2,7 +2,6 @@
 namespace AramisAuto\EmailController\Event;
 
 use Symfony\Component\EventDispatcher\Event;
-use AramisAuto\EmailController\Message;
 
 class ErrorEvent extends Event
 {
