@@ -13,6 +13,7 @@ class Message
     public $to = array();
     public $cc = array();
     public $source;
+    public $metadata = array();
 
     public function setRaw($raw)
     {
@@ -81,5 +82,10 @@ class Message
     public function setId($id)
     {
         $this->id = $id;
+    }
+
+    public function hasMetadata($name)
+    {
+        return array_key_exists($name, $this->metadata);
     }
 }

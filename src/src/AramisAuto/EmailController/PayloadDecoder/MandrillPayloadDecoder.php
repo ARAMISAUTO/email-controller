@@ -11,7 +11,6 @@ class MandrillPayloadDecoder implements PayloadDecoderInterface
     {
         // Parse request raw body
         $vars = array();
-        $payload = urldecode($payload);
         parse_str($payload, $vars);
 
         if (!isset($vars['mandrill_events'])) {
@@ -54,6 +53,7 @@ class MandrillPayloadDecoder implements PayloadDecoderInterface
                 'headers'    => array(),
                 'html'       => null,
                 'id'         => null,
+                'metadata'   => array(),
                 'raw_msg'    => null,
                 'subject'    => null,
                 'text'       => null,
@@ -76,6 +76,9 @@ class MandrillPayloadDecoder implements PayloadDecoderInterface
             $message->setCc($messageFields['cc']);
             $message->source = json_decode($vars['mandrill_events'], true)[0];
             $message->setId($message->source['_id']);
+            if (isset($message->source['msg']['metadata'])) {
+                $message->metadata = $message->source['msg']['metadata'];
+            }
 
             $messages[] = $message;
         }
