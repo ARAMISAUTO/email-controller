@@ -79,11 +79,11 @@ class MandrillPayloadDecoder implements PayloadDecoderInterface
             $message->setId($messageFields['_id']);
 
             // Message metadata
-            $this->metadata = array();
+            $message->metadata = array();
             if (isset($messageFields['msg'])) {
-                $this->metadata = array_merge($this->metadata, $messageFields['msg']);
+                $this->metadata = array_merge($message->metadata, $messageFields['msg']);
             }
-            $this->metadata['event'] = $messageFields['event'];
+            $message->metadata['event'] = $messageFields['event'];
 
             // Keep original message
             $message->source = $messageMandrill;
