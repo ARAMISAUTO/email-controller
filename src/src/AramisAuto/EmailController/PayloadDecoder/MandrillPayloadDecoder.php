@@ -74,13 +74,22 @@ class MandrillPayloadDecoder implements PayloadDecoderInterface
             );
             $message->setTo($messageFields['to']);
             $message->setCc($messageFields['cc']);
-            $message->source = json_decode($vars['mandrill_events'], true)[0];
-            $message->setId($message->source['_id']);
-            if (isset($message->source['msg']['metadata'])) {
-                $message->metadata = $message->source['msg']['metadata'];
+
+            // Message unique identifier
+            $message->setId($messageFields['_id']);
+
+            // Message metadata
+            $this->metadata = array();
+            if (isset($messageFields['msg'])) {
+                $this->metadata = array_merge($this->metadata, $messageFields['msg']);
             }
+            $this->metadata['event'] = $messageFields['event'];
+
+            // Keep original message
+            $message->source = $messageMandrill;
 
             $messages[] = $message;
+            unset($messageFields);
         }
 
         return $messages;
