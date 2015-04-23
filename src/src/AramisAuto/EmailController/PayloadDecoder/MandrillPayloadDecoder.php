@@ -57,7 +57,7 @@ class MandrillPayloadDecoder implements PayloadDecoderInterface
                 'raw_msg'    => null,
                 'subject'    => null,
                 'text'       => null,
-                'to'         => array(),
+                'email'      => array(),
             );
             $messageFields = array_merge($messageDefaults, $messageMandrill);
 
@@ -68,12 +68,8 @@ class MandrillPayloadDecoder implements PayloadDecoderInterface
             $message->setText($messageFields['text']);
             $message->setHtml($messageFields['html']);
             $message->setSubject($messageFields['subject']);
-            $message->setFrom(
-                $messageFields['from_email'],
-                $messageFields['from_name']
-            );
-            $message->setTo($messageFields['to']);
-            $message->setCc($messageFields['cc']);
+            $message->setFrom($messageFields['msg']['sender']);
+            $message->setTo(array(array($messageMandrill['msg']['email'], null)));
 
             // Message unique identifier
             $message->setId($messageFields['_id']);
@@ -81,7 +77,10 @@ class MandrillPayloadDecoder implements PayloadDecoderInterface
             // Message metadata
             $message->metadata = array();
             if (isset($messageFields['msg'])) {
-                $this->metadata = array_merge($message->metadata, $messageFields['msg']);
+                $message->metadata = array_merge($message->metadata, $messageFields['msg']);
+            }
+            if (isset($messageFields['msg']['metadata'])) {
+                $message->metadata = array_merge($message->metadata, $messageFields['msg']['metadata']);
             }
             $message->metadata['event'] = $messageFields['event'];
 
