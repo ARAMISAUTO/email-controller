@@ -1,11 +1,11 @@
 <?php
+
 namespace AramisAuto\EmailController;
 
 use AramisAuto\EmailController\Event\ErrorEvent;
 use AramisAuto\EmailController\Event\MessageEvent;
 use AramisAuto\EmailController\Exception\NoMessageStrategyException;
 use AramisAuto\EmailController\MessageStrategy\AbstractMessageStrategy;
-use PayloadDecoder\PayloadDecoderInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
@@ -40,6 +40,8 @@ class EmailController implements LoggerAwareInterface
         );
         $messages = $this->payloadDecoder->decode($payload);
 
+        $this->logger->info('Decoded payload', $messages);
+
         // Execute applicable message strategies
         foreach ($messages as $message) {
             $matched = false;
@@ -50,15 +52,15 @@ class EmailController implements LoggerAwareInterface
                     'Evaluating expression against message',
                     array(
                         'expression' => $expression,
-                        'messageId'  => $message->id
+                        'messageId' => $message->id,
                     )
                 );
                 $this->logger->debug(
                     'Evaluating expression against message',
                     array(
                         'expression' => $expression,
-                        'message'    => $message,
-                        'messageId'  => $message->id
+                        'message' => $message,
+                        'messageId' => $message->id,
                     )
                 );
 
@@ -76,7 +78,7 @@ class EmailController implements LoggerAwareInterface
                         array(
                             'expression' => $expression,
                             'strategy' => get_class($strategy),
-                            'messageId'  => $message->id
+                            'messageId' => $message->id,
                         )
                     );
 
@@ -85,8 +87,8 @@ class EmailController implements LoggerAwareInterface
                         $this->logger->info(
                             'Strategy execution succeeded',
                             array(
-                                'strategy'  => get_class($strategy),
-                                'messageId' => $strategy->getMessage()->id
+                                'strategy' => get_class($strategy),
+                                'messageId' => $strategy->getMessage()->id,
                             )
                         );
                         $this->getEventDispatcher()->dispatch($this->success(), $event);
@@ -97,9 +99,9 @@ class EmailController implements LoggerAwareInterface
                         $this->logger->info(
                             'Strategy execution failed',
                             array(
-                                'strategy'  => get_class($strategy),
+                                'strategy' => get_class($strategy),
                                 'messageId' => $strategy->getMessage()->id,
-                                'error'     => $event->getError()
+                                'error' => $event->getError(),
                             )
                         );
                         $this->getEventDispatcher()->dispatch($this->error(), $event);
