@@ -1,4 +1,5 @@
 <?php
+
 namespace AramisAuto\EmailController\PayloadDecoder;
 
 use AramisAuto\EmailController\Exception\InvalidPayloadException;
@@ -17,7 +18,7 @@ class MandrillPayloadDecoder implements PayloadDecoderInterface
             throw new InvalidPayloadException(
                 sprintf(
                     'Missing "mandrill_events" body parameter - %s',
-                    json_encode(array('payload' =>  $payload), JSON_UNESCAPED_SLASHES)
+                    json_encode(array('payload' => $payload), JSON_UNESCAPED_SLASHES)
                 )
             );
         }
@@ -29,7 +30,7 @@ class MandrillPayloadDecoder implements PayloadDecoderInterface
             throw new MandrillWebhookTestException(
                 sprintf(
                     'Received Mandrill test payload - %s',
-                    json_encode(array('payload' =>  $payload), JSON_UNESCAPED_SLASHES)
+                    json_encode(array('payload' => $payload), JSON_UNESCAPED_SLASHES)
                 )
             );
         }
@@ -47,17 +48,17 @@ class MandrillPayloadDecoder implements PayloadDecoderInterface
         foreach ($messagesMandrill as $messageMandrill) {
             // Defaults
             $messageDefaults = array(
-                'cc'         => array(),
+                'cc' => array(),
                 'from_email' => null,
-                'from_name'  => null,
-                'headers'    => array(),
-                'html'       => null,
-                'id'         => null,
-                'metadata'   => array(),
-                'raw_msg'    => null,
-                'subject'    => null,
-                'text'       => null,
-                'email'      => array(),
+                'from_name' => null,
+                'headers' => array(),
+                'html' => null,
+                'id' => null,
+                'metadata' => array(),
+                'raw_msg' => null,
+                'subject' => null,
+                'text' => null,
+                'email' => array(),
             );
             $messageFields = array_merge($messageDefaults, $messageMandrill);
 
@@ -79,10 +80,9 @@ class MandrillPayloadDecoder implements PayloadDecoderInterface
             if (isset($messageFields['msg'])) {
                 $message->metadata = array_merge($message->metadata, $messageFields['msg']);
             }
-            if (isset($messageFields['msg']['metadata'])) {
+            if (isset($messageFields['msg']) && isset($messageFields['msg']['metadata'])) {
                 $message->metadata = array_merge($message->metadata, $messageFields['msg']['metadata']);
             }
-            $message->metadata['event'] = $messageFields['event'];
 
             // Keep original message
             $message->source = $messageMandrill;
@@ -90,6 +90,8 @@ class MandrillPayloadDecoder implements PayloadDecoderInterface
             $messages[] = $message;
             unset($messageFields);
         }
+
+        $this->logger->info('Mandrill payload decoded', ['messagesCount' => count($messages)]);
 
         return $messages;
     }
