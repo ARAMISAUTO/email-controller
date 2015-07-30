@@ -91,8 +91,6 @@ class MandrillPayloadDecoder implements PayloadDecoderInterface
             unset($messageFields);
         }
 
-        $this->logger->info('Mandrill payload decoded', ['messagesCount' => count($messages)]);
-
         return $messages;
     }
 }
